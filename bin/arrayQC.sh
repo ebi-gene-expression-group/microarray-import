@@ -33,13 +33,13 @@ fixArrayQualityMetricsFile(){
 rm -rf $expTargetDir/qc
 
 pushd $expTargetDir || exit 1 > /dev/null
-$projectRoot/analysis/qc/arrayQC.pl $expAcc
+$scriptDir/arrayQC.pl $expAcc
 exitCode=$?
 if [ $exitCode -eq 1 ]; then
     # The QC procedure succeeded but the experiment failed the QC
     popd || exit 1 > /dev/null
     mv $expTargetDir ${ATLAS_PROD}/failedQC/microarray/
-    echo "[QC] Quality control for ${expAcc} has failed - see http://www.ebi.ac.uk/~rpetry/atlas3/failedQC/microarray/${expAcc} for more info"
+    echo "[QC] Quality control for ${expAcc} has failed - see ${ATLAS_PROD}/failedQC/microarray/${expAcc} for more info"
     exit 2
 elif [ $exitCode -ne 0 ]; then
     popd || exit 1 > /dev/null
