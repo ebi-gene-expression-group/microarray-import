@@ -3,7 +3,8 @@
 # This script decorates a microarray experiment with gene name and identifier from the latest Ensembl (or miRBase - as applicable) release.
 # Source script from the same (prod or test) Atlas environment as this script
 scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source ${scriptDir}/decorate_routines.sh
+projectRoot=$scriptDir/../..
+source $projectRoot/bioentity_annotations/decorate_routines.sh
 
 if [ $# -lt 1 ]; then
         echo "Usage: $0 PATH_TO_EXPERIMENT "
