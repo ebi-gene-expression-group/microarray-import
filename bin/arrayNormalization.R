@@ -144,7 +144,8 @@ normalizeArrayData <- function(inFile, mode, outFile, miRBaseFile) {
 
             # Reads all the raw illumina txt files
             # Creates LumiBatch object.
-            lumiBatch <- lumiR.batch(fileList = unique(files))
+            # Not to convert the probe identifier as nuID
+            lumiBatch <- lumiR.batch(fileList = unique(files), convertNuID = FALSE)
 
             print("Finished reading in Illumina files")
 
