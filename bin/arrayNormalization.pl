@@ -28,11 +28,11 @@ use Log::Log4perl;
 
 # Log4perl config.
 my $logger_config = q(
-	log4perl.rootlogger			         = INFO, SCREEN
-	log4perl.appender.SCREEN             = Log::Log4perl::Appender::Screen
-	log4perl.appender.SCREEN.stderr      = 0
-	log4perl.appender.SCREEN.layout      = Log::Log4perl::Layout::PatternLayout
-	log4perl.appender.SCREEN.layout.ConversionPattern = %-5p - %m%n
+log4perl.rootlogger			         = INFO, SCREEN
+log4perl.appender.SCREEN             = Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.stderr      = 0
+log4perl.appender.SCREEN.layout      = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.SCREEN.layout.ConversionPattern = %-5p - %m%n
 );
 
 # Absolute directory path to the file storage 
@@ -50,18 +50,18 @@ my $atlasSiteConfig = create_atlas_site_config;
 my $exptAccession = shift;
 
 unless( $exptAccession ) {
-    $logger->logdie( "Please provide experiment accession as an argument." );
+	$logger->logdie( "Please provide experiment accession as an argument." );
 }
 
 # Filename of R script for normalization.
 my $normalizationRscript = "$abs_path/arrayNormalization.R";
 unless( can_run( $normalizationRscript ) ) {
-    $logger->logdie( "Script \"$normalizationRscript\" not found. Please ensure it is in your \$PATH and you can run it.");
+	$logger->logdie( "Script \"$normalizationRscript\" not found. Please ensure it is in your \$PATH and you can run it.");
 }
 
 # Check that we can run R.
 unless( can_run( "R" ) ) {
-    $logger->logdie( "R was not found. Please ensure it is installed and you can run it." );
+	$logger->logdie( "R was not found. Please ensure it is installed and you can run it." );
 }
 
 # Path to directory with ArrayExpress/Atlas load directories underneath.
@@ -166,9 +166,9 @@ foreach my $arrayDesign (keys %{ $H_arraysToAssaysToFiles }) {
 	# If there was an error in R die and print the error.
 	if($RscriptOutput =~ /error/i) {
 		$logger->logdie( "Error encountered during normalization of $exptAccession on array $arrayDesign. Full output from R is below:
-		------------------------
-		$RscriptOutput
-		" );
+			------------------------
+			$RscriptOutput
+			" );
 	}
 	else {
 		# For 2-colour data, rename files created.
@@ -253,10 +253,10 @@ sub makeArraysToAssaysToFiles {
 			$logger->info( "Assay \"$assayName\" not found in XML config, not including in normalization." );
 			next;
 		}
- 
-        # Get technology from Array design file using peach API. 
-        my $adfInfoUrl = $atlasSiteConfig->get_arrayexpress_adf_info_url;
-        my $arrayDataTech=`curl -s $adfInfoUrl$arrayDesign`;
+
+		# Get technology from Array design file using peach API. 
+		my $adfInfoUrl = $atlasSiteConfig->get_arrayexpress_adf_info_url;
+		my $arrayDataTech=`curl -s $adfInfoUrl$arrayDesign`;
 
 		# Raw data filename.
 		my $arrayDataFile = File::Spec->catfile( $loadDir, $assay4atlas->get_array_data_file );
@@ -265,14 +265,14 @@ sub makeArraysToAssaysToFiles {
 		# Affymetrix or Illumina or Agilent (or other -- for now we handle Affy, Agil and Illumina
 		# data). Worked this out based on the Array design info stored in ADF using peach API call.
 		if( $experimentType =~ /1colour/ ) {
-   		 	if( $arrayDataTech =~ /Affymetrix/i ) { $normalizationMode = "affy"; }
-    		elsif( $arrayDataTech =~ /Illumina/i ) { $normalizationMode = "lumi"; }
-    		elsif( $arrayDataTech =~ /Agilent/i ) { $normalizationMode = "agil1"; }
-    		else {
-    			$logger->logdie( "Error $arrayDataTech not found for $arrayDesign " )
-    		}
-		} elsif( $experimentType =~ /2colour/ ) {
-   			$normalizationMode = "agil2";
+			if( $arrayDataTech =~ /Affymetrix/i ) { $normalizationMode = "affy"; }
+			elsif( $arrayDataTech =~ /Illumina/i ) { $normalizationMode = "lumi"; }
+			elsif( $arrayDataTech =~ /Agilent/i ) { $normalizationMode = "agil1"; }
+			else {
+				$logger->logdie( "Error $arrayDataTech not found for $arrayDesign " )
+			}
+			} elsif( $experimentType =~ /2colour/ ) {
+				$normalizationMode = "agil2";
 
 			# Remove label name from assay name which was added by Atlas::Magetab4Atlas.
 			$assayName =~ s/\.Cy\d$//;

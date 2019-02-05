@@ -234,7 +234,7 @@ atlasArrayQC <- function(annotationFile, exptType, exptAcc, arrayDesign, outDir,
 # ARGUMENTS:
 # 	- dataSet <- for now either EListRaw or RGList object.
 # 	- miRBaseFile <- filename for miRBase mappings.
-subsetProbes <<- function(dataSet, miRBaseFile) {
+subsetProbes <- function(dataSet, miRBaseFile) {
 
 	print(paste("There are", nrow(dataSet), "rows of data"))
 	
