@@ -174,7 +174,7 @@ illuminaQC <- function(annotationFile) {
 	library(lumi)
 
 	# Read files into ExpressionFeatureSet object.
-	dataSet <- try({lumiR.batch(fileList = unique(annotations$FileName), sampleInfoFile = samplesInfo )})
+	dataSet <- try({lumiR.batch(fileList = unique(annotations$FileName), convertNuID = FALSE, sampleInfoFile = samplesInfo )})
 	if(class(dataSet) == "try-error") {
 		return(dataSet)
 	}
