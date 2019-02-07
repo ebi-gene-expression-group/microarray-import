@@ -46,11 +46,18 @@ my $logger = Log::Log4perl::get_logger;
 my $atlasProdDir = $ENV{ "ATLAS_PROD" };
 my $atlasSiteConfig = create_atlas_site_config;
 
-# Experiment accession.
-my $exptAccession = shift;
+# Experiment directory idf filename and ArrayExpress Load directory as args
+my ($atlasExperimentDir, $idfFilename, $loadDir) = @ARGV;
+my $exptAccession = (split '\/', $atlasExperimentDir)[-1];
 
 unless( $exptAccession ) {
 	$logger->logdie( "Please provide experiment accession as an argument." );
+}
+unless( $idfFilename ) {
+	$logger->logdie( "Please provide idfFilename as an argument." );
+}
+unless( $loadDir ) {
+	$logger->logdie( "Please provide AE loadDir as an argument." );
 }
 
 # Filename of R script for normalization.
@@ -82,11 +89,8 @@ foreach my $miRBaseFile (@A_miRBaseFiles) {
 	$H_miRBaseFileHash->{ $arrayDesign } = $miRBaseFile;
 }
 
-
 # Atlas XML config file name.
 my $atlasXMLconfigFile = $exptAccession . "-configuration.xml";
-# Atlas experiment directory.
-my $atlasExperimentDir = File::Spec->catdir( $atlasProdDir, "analysis", "differential", "microarray", "experiments", $exptAccession );
 # Full path to XML config file.
 my $atlasXMLconfigPath = File::Spec->catfile( $atlasExperimentDir, $atlasXMLconfigFile );
 

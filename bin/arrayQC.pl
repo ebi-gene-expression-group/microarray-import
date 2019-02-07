@@ -57,11 +57,22 @@ my $atlasSiteConfig = create_atlas_site_config;
 
 # Helpful message
 my $usage = "Usage:
-	arrayQC.pl <experiment accession>
+	arrayQC.pl <atlasExperimentDir> <idfFilename> <AEloadDir>
 ";
 
-# Get accession from cmdline
-my $exptAccession = shift;
+# Experiment directory idf filename and ArrayExpress Load directory as args
+my ($atlasExperimentDir, $idfFilename, $loadDir) = @ARGV;
+my $exptAccession = (split '\/', $atlasExperimentDir)[-1];
+
+unless( $exptAccession ) {
+	$logger->logdie( "Please provide experiment accession as an argument." );
+}
+unless( $idfFilename ) {
+	$logger->logdie( "Please provide idfFilename as an argument." );
+}
+unless( $loadDir ) {
+	$logger->logdie( "Please provide AE loadDir as an argument." );
+}
 
 # If nothing was provided, print message and die.
 unless($exptAccession) { die $usage; }
@@ -92,9 +103,6 @@ unless( can_run( "R" ) ) {
     $logger->logdie( "R not found. Please ensure it is installed and you can run it." );
 }
 
-# Path to directory with ArrayExpress/Atlas load directories underneath.
-my $exptsLoadStem = File::Spec->catdir( $CONFIG->get_AE2_LOAD_DIR, "EXPERIMENT" );
-
 # miRBase mapped array designs -- we need to subset probes if we find one of these.
 # Get an array of miRBase mapping files.
 my $miRBaseDirectory = File::Spec->catdir( $atlasProdDir, $atlasSiteConfig->get_mirbase_mappings_directory );
@@ -108,13 +116,6 @@ foreach my $miRBaseFile (@miRBaseFiles) {
 	# Add the miRBase mapping file to the hash with the array design as key.
 	$miRBaseFileHash->{ $arrayDesign } = $miRBaseFile;
 }
-
-# Get the pipeline (e.g. MEXP, MTAB, GEOD, ...) for this experiment.
-(my $pipeline = $exptAccession) =~ s/E-(\w{4})-\d+/$1/;
-
-# Experiment load directory and IDF filename.
-my $loadDir = "$exptsLoadStem/$pipeline/$exptAccession";
-my $idfFilename = "$loadDir/$exptAccession.idf.txt";
 
 # Die if the IDF doesn't exist.
 unless(-e $idfFilename) {

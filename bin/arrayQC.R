@@ -34,120 +34,25 @@ atlasArrayQC <- function(annotationFile, exptType, exptAcc, arrayDesign, outDir,
 	# Read in raw data and add factor values to object created.
 	# Affymetrix data
 	if(exptType == "affy") {
-		# Read in the annotation file with factor values and corresponding raw data
-		# files.
-		annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
-		rownames(annotations) <- annotations$AssayName
-
-		# Create Biobase AnnotatedDataFrame object with annotations.
-		library(Biobase)
-		annotDF <- new("AnnotatedDataFrame", annotations)
-	
-		# Load oligo package.
-		library(oligo)
-		
-		# Read files into ExpressionFeatureSet object.
-		dataSet <- try({read.celfiles(annotations$FileName)})
-		if(class(dataSet) == "try-error") {
-			return(dataSet)
-		}
-		
-		# Add annotations to the object.
-		phenoData(dataSet) <- annotDF
+   
+ 		dataset <- affymetrixQC( annotationFile )
 	}
 
 	# Illumina data.
 	# single channel data
 	else if(exptType == "lumi") {
-		# Read in the annotation file with factor values and corresponding raw data
-		# files.
-		annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
-		rownames(annotations) <- annotations$AssayName
 
-		# Create Biobase AnnotatedDataFrame object with annotations.
-		library(Biobase)
-		annotDF <- new("AnnotatedDataFrame", annotations)
-
-        ## make as assayNamees as dataframe
-        samplesInfo <- data.frame(annotations$AssayName)
-
-		# Load lumi package.
-		library(lumi)
-
-		# Read files into ExpressionFeatureSet object.
-		dataSet <- try({lumiR.batch(fileList = unique(annotations$FileName), sampleInfoFile = samplesInfo )})
-		if(class(dataSet) == "try-error") {
-			return(dataSet)
-		}
-
-		# Add annotations to the object.
-		phenoData(dataSet) <- annotDF
+		dataset <- illuminaQC( annotationFile )
 
 	}
 	# Agilent data.
-	# One-colour Agilent data
-	else if(exptType == "agil1") {
-		# Read in the annotation file with factor values and corresponding raw data
-		# files.
-		annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
-		rownames(annotations) <- annotations$AssayName
+	# One-colour or Two color Agilent data
+	else if(exptType == "agil1" | exptType == "agil2") {
 
-		# Create Biobase AnnotatedDataFrame object with annotations.
-		library(Biobase)
-		annotDF <- new("AnnotatedDataFrame", annotations)
-	
-		# Load limma package
-		library(limma)
-		
-		# Read in the data to an "EListRaw" object.
-		dataSet <- try({read.maimages(annotations$FileName, source="agilent", green.only=TRUE)})
-		
-		# If we have a miRBase mapping file, subset the data to only include
-		# probes that are there.
-		if(miRBaseFile != 0) {
-			dataSet <- subsetProbes(dataSet, miRBaseFile)
-		}
-	
-		# Make it into an "NChannelSet" object for arrayQualityMetrics to read.
-		# For this need to put the expressions into an AssayData object.
-		aData <- assayDataNew(storage.mode = "lockedEnvironment", exprs = dataSet$E)
-		# Add the rownames from the annotations data frame (filenames) as the sample names.
-		sampleNames(aData) <- rownames(annotations)
-		# Create the NChannelSet object with the expressions and annotations.
-		dataSet <- new("NChannelSet", assayData = aData, phenoData = annotDF)
-		
-		# Check things worked and return the error if not.
-		if(class(dataSet) == "try-error") {
-			return(dataSet)
-		}
+		dataset <- agilentQC(annotationFile, exptType, miRBaseFile)
+
 	}
-	# Two-colour Agilent data
-	else if(exptType == "agil2") {
-		# Use the "Cy5" column from the annotations to colour points in the
-		# report.
-		factorColName <- "Cy5"
 
-		# Load limma
-		library(limma)
-
-		# Create a "targets" data frame to show which samples are labelled with
-		# which dye in the report.
-		targets <- readTargets(annotationFile)
-		
-		# Read in the data to an "RGList" object.
-		dataSet <- try({read.maimages(targets, source="agilent")})
-		
-		# Check things worked and return the error if not.
-		if(class(dataSet) == "try-error") {
-			return(dataSet)
-		}
-		
-		# If we have a miRBase mapping file, subset the data to only include
-		# probes that are there.
-		if(miRBaseFile != 0) {
-			dataSet <- subsetProbes(dataSet, miRBaseFile)
-		}
-	}
 	# Something we don't recognise.
 	else { stop(paste("Can't handle", exptType, "experiments yet", sep=" ")) }
 
@@ -225,6 +130,130 @@ atlasArrayQC <- function(annotationFile, exptType, exptAcc, arrayDesign, outDir,
 	}
 }
 
+affymetrixQC <- function(annotationFile){
+
+	# Read in the annotation file with factor values and corresponding raw data
+	# files.
+	annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
+	rownames(annotations) <- annotations$AssayName
+
+	# Create Biobase AnnotatedDataFrame object with annotations.
+	library(Biobase)
+	annotDF <- new("AnnotatedDataFrame", annotations)
+
+	# Load oligo package.
+	library(oligo)
+
+	# Read files into ExpressionFeatureSet object.
+	dataSet <- try({read.celfiles(annotations$FileName)})
+	if(class(dataSet) == "try-error") {
+		return(dataSet)
+	}
+
+	# Add annotations to the object.
+	phenoData(dataSet) <- annotDF
+
+	return (dataSet)
+}
+
+illuminaQC <- function(annotationFile) {
+
+	# Read in the annotation file with factor values and corresponding raw data
+	# files.
+	annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
+	rownames(annotations) <- annotations$AssayName
+
+	# Create Biobase AnnotatedDataFrame object with annotations.
+	library(Biobase)
+	annotDF <- new("AnnotatedDataFrame", annotations)
+
+	## make as assayNamees as dataframe
+	samplesInfo <- data.frame(annotations$AssayName)
+
+	# Load lumi package.
+	library(lumi)
+
+	# Read files into ExpressionFeatureSet object.
+	dataSet <- try({lumiR.batch(fileList = unique(annotations$FileName), sampleInfoFile = samplesInfo )})
+	if(class(dataSet) == "try-error") {
+		return(dataSet)
+	}
+
+	# Add annotations to the object.
+	phenoData(dataSet) <- annotDF
+
+	return (dataSet)
+
+}
+
+agilentQC <- function(annotationFile, exptType, miRBaseFile) {
+
+	if(exptType == "agil1") {
+		# Read in the annotation file with factor values and corresponding raw data
+		# files.
+		annotations <- read.delim(annotationFile, header = TRUE, stringsAsFactors = FALSE)
+		rownames(annotations) <- annotations$AssayName
+
+		# Create Biobase AnnotatedDataFrame object with annotations.
+		library(Biobase)
+		annotDF <- new("AnnotatedDataFrame", annotations)
+	
+		# Load limma package
+		library(limma)
+		
+		# Read in the data to an "EListRaw" object.
+		dataSet <- try({read.maimages(annotations$FileName, source="agilent", green.only=TRUE)})
+		
+		# If we have a miRBase mapping file, subset the data to only include
+		# probes that are there.
+		if(miRBaseFile != 0) {
+			dataSet <- subsetProbes(dataSet, miRBaseFile)
+		}
+	
+		# Make it into an "NChannelSet" object for arrayQualityMetrics to read.
+		# For this need to put the expressions into an AssayData object.
+		aData <- assayDataNew(storage.mode = "lockedEnvironment", exprs = dataSet$E)
+		# Add the rownames from the annotations data frame (filenames) as the sample names.
+		sampleNames(aData) <- rownames(annotations)
+		# Create the NChannelSet object with the expressions and annotations.
+		dataSet <- new("NChannelSet", assayData = aData, phenoData = annotDF)
+		
+		# Check things worked and return the error if not.
+		if(class(dataSet) == "try-error") {
+			return(dataSet)
+		}
+	}
+	# Two-colour Agilent data
+	else if(exptType == "agil2") {
+		# Use the "Cy5" column from the annotations to colour points in the
+		# report.
+		factorColName <- "Cy5"
+
+		# Load limma
+		library(limma)
+
+		# Create a "targets" data frame to show which samples are labelled with
+		# which dye in the report.
+		targets <- readTargets(annotationFile)
+		
+		# Read in the data to an "RGList" object.
+		dataSet <- try({read.maimages(targets, source="agilent")})
+		
+		# Check things worked and return the error if not.
+		if(class(dataSet) == "try-error") {
+			return(dataSet)
+		}
+		
+		# If we have a miRBase mapping file, subset the data to only include
+		# probes that are there.
+		if(miRBaseFile != 0) {
+			dataSet <- subsetProbes(dataSet, miRBaseFile)
+		}
+	}
+
+	return(dataSet)
+
+}
 
 # Copied this from normalizeOneExperiment.R but should prob take it out to a
 # separate script to source.

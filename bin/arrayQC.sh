@@ -6,11 +6,14 @@ projectRoot=${scriptDir}/../..
 
 if [ $# -lt 1 ]; then
    echo "Usage: $0 expAcc"
-   echo "e.g. $0 E-MTAB-1066"
+   echo "e.g. $0 E-MTAB-1066 E-MTAB-1066.idf.txt AE_loadDirectoryPath "
    exit 1
 fi
 
 expTargetDir=$1
+idf_filename=$2
+ae_dir=$3
+
 expAcc="$(basename $expTargetDir)"
 
 # This is still needed if the version of arrayQualityMetrics is < 3.32.0
@@ -33,7 +36,7 @@ fixArrayQualityMetricsFile(){
 rm -rf $expTargetDir/qc
 
 pushd $expTargetDir || exit 1 > /dev/null
-$scriptDir/arrayQC.pl $expAcc
+$scriptDir/arrayQC.pl $expTargetDir $idf_filename $ae_dir
 exitCode=$?
 if [ $exitCode -eq 1 ]; then
     # The QC procedure succeeded but the experiment failed the QC
