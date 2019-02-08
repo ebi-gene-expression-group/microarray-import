@@ -13,6 +13,7 @@ fi
 expTargetDir=$1
 idf_filename=$2
 ae_dir=$3
+mirbase_dir=$4
 
 expAcc="$(basename $expTargetDir)"
 
@@ -36,7 +37,7 @@ fixArrayQualityMetricsFile(){
 rm -rf $expTargetDir/qc
 
 pushd $expTargetDir || exit 1 > /dev/null
-$scriptDir/arrayQC.pl $expTargetDir $idf_filename $ae_dir
+$scriptDir/arrayQC.pl $expTargetDir $idf_filename $ae_dir $mirbase_dir
 exitCode=$?
 if [ $exitCode -eq 1 ]; then
     # The QC procedure succeeded but the experiment failed the QC

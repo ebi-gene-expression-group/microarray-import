@@ -35,21 +35,21 @@ atlasArrayQC <- function(annotationFile, exptType, exptAcc, arrayDesign, outDir,
 	# Affymetrix data
 	if(exptType == "affy") {
    
- 		dataset <- affymetrixQC( annotationFile )
+ 		dataSet <- affymetrixQC( annotationFile )
 	}
 
 	# Illumina data.
 	# single channel data
 	else if(exptType == "lumi") {
 
-		dataset <- illuminaQC( annotationFile )
+		dataSet <- illuminaQC( annotationFile )
 
 	}
 	# Agilent data.
 	# One-colour or Two color Agilent data
 	else if(exptType == "agil1" | exptType == "agil2") {
 
-		dataset <- agilentQC(annotationFile, exptType, miRBaseFile)
+		dataSet <- agilentQC(annotationFile, exptType, miRBaseFile)
 
 	}
 

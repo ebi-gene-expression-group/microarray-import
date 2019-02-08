@@ -48,11 +48,6 @@ my $logger = Log::Log4perl::get_logger;
 # Absolute directory path to the file storage 
 my $abs_path = dirname(File::Spec->rel2abs(__FILE__));
 
-my $atlasProdDir = $ENV{ "ATLAS_PROD" };
-unless( $atlasProdDir ) {
-	$logger->logdie( "ATLAS_PROD environment variable is not defined, cannot continue." );
-}
-
 my $atlasSiteConfig = create_atlas_site_config;
 
 # Helpful message
@@ -60,18 +55,21 @@ my $usage = "Usage:
 	arrayQC.pl <atlasExperimentDir> <idfFilename> <AEloadDir>
 ";
 
-# Experiment directory idf filename and ArrayExpress Load directory as args
-my ($atlasExperimentDir, $idfFilename, $loadDir) = @ARGV;
+# Experiment directory idf filename and ArrayExpress and miRBase Load directory as args
+my ($atlasExperimentDir, $idfFilename, $loadDir, $miRBaseDirectory) = @ARGV;
 my $exptAccession = (split '\/', $atlasExperimentDir)[-1];
 
-unless( $exptAccession ) {
-	$logger->logdie( "Please provide experiment accession as an argument." );
+unless( $atlasExperimentDir ) {
+	$logger->logdie( "Please provide experiment accession directory path as an argument." );
 }
 unless( $idfFilename ) {
 	$logger->logdie( "Please provide idfFilename as an argument." );
 }
 unless( $loadDir ) {
 	$logger->logdie( "Please provide AE loadDir as an argument." );
+}
+unless( $miRBaseDirectory ) {
+	$logger->logdie( "Please provide miRBase directory as an argument." );
 }
 
 # If nothing was provided, print message and die.
@@ -105,7 +103,6 @@ unless( can_run( "R" ) ) {
 
 # miRBase mapped array designs -- we need to subset probes if we find one of these.
 # Get an array of miRBase mapping files.
-my $miRBaseDirectory = File::Spec->catdir( $atlasProdDir, $atlasSiteConfig->get_mirbase_mappings_directory );
 my @miRBaseFiles = glob( "$miRBaseDirectory/*.A-*.tsv" );
 
 # Create a hash for easy checking.

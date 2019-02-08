@@ -38,26 +38,29 @@ log4perl.appender.SCREEN.layout.ConversionPattern = %-5p - %m%n
 # Absolute directory path to the file storage 
 my $abs_path = dirname(File::Spec->rel2abs(__FILE__));
 
+my $atlasSiteConfig = create_atlas_site_config;
+
 # Initialise logger.
 Log::Log4perl::init(\$logger_config);
 my $logger = Log::Log4perl::get_logger;
 
-
-my $atlasProdDir = $ENV{ "ATLAS_PROD" };
 my $atlasSiteConfig = create_atlas_site_config;
 
-# Experiment directory idf filename and ArrayExpress Load directory as args
-my ($atlasExperimentDir, $idfFilename, $loadDir) = @ARGV;
+# Experiment directory idf filename and ArrayExpress and miRBase Load directory as args
+my ($atlasExperimentDir, $idfFilename, $loadDir, $miRBaseDirectory) = @ARGV;
 my $exptAccession = (split '\/', $atlasExperimentDir)[-1];
 
-unless( $exptAccession ) {
-	$logger->logdie( "Please provide experiment accession as an argument." );
+unless( $atlasExperimentDir ) {
+	$logger->logdie( "Please provide experiment accession directory path as an argument." );
 }
 unless( $idfFilename ) {
 	$logger->logdie( "Please provide idfFilename as an argument." );
 }
 unless( $loadDir ) {
 	$logger->logdie( "Please provide AE loadDir as an argument." );
+}
+unless( $miRBaseDirectory ) {
+	$logger->logdie( "Please provide miRBase directory as an argument." );
 }
 
 # Filename of R script for normalization.
@@ -71,12 +74,8 @@ unless( can_run( "R" ) ) {
 	$logger->logdie( "R was not found. Please ensure it is installed and you can run it." );
 }
 
-# Path to directory with ArrayExpress/Atlas load directories underneath.
-my $exptsLoadStem = $ENV{"AE2_BASE_DIR"};
-
 # miRBase mapped array designs -- we need to subset probes if we find one of these.
 # Get an array of miRBase mapping files.
-my $miRBaseDirectory = File::Spec->catdir( $atlasProdDir, $atlasSiteConfig->get_mirbase_mappings_directory );
 my @A_miRBaseFiles = glob( "$miRBaseDirectory/*.A-*.tsv" );
 
 # Create a hash for easy checking.
@@ -101,13 +100,6 @@ my $experimentConfig = parseAtlasConfig( $atlasXMLconfigPath );
 unless( $experimentConfig->get_atlas_experiment_type =~ /array/ ) {
 	$logger->logdie( "This does not look like a microarray experiment. Experiment type is \"", $experimentConfig->get_atlas_experiment_type );
 }
-
-# Get the pipeline (e.g. MEXP, MTAB, GEOD, ...) for this experiment.
-(my $pipeline = $exptAccession) =~ s/E-(\w{4})-\d+/$1/;
-
-# Experiment load directory and IDF filename.
-my $loadDir = File::Spec->catdir( $exptsLoadStem, $pipeline, $exptAccession );
-my $idfFilename = File::Spec->catfile( $loadDir, "$exptAccession.idf.txt" );
 
 # Read the MAGE-TAB.
 $logger->info( "Reading MAGE-TAB..." );
