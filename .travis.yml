@@ -1,0 +1,25 @@
+sudo: required
+
+language: perl
+
+perl:
+  - '5.20.2'
+  - '5.10.0'
+
+before_install:
+    - sudo apt-get update -q
+    - cpanm Test::Pod # optional dependency
+    - cpanm File::Spec
+    - cpanm File::Basename;
+    - cpnam File::Copy;
+    - cpanm File::Path;
+    - cpanm Getopt::Long
+
+
+install:
+  - cpanm -v --installdeps --notest .
+
+
+TRAVIS_PERL_VERSION
+
+cpanm --quiet --installdeps --notest .

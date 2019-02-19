@@ -12,8 +12,7 @@ use 5.10.0;
 
 # XML config parsing.
 use Atlas::AtlasConfig::Reader qw( parseAtlasConfig );
-# Site config
-use Atlas::Common qw( create_atlas_site_config );
+
 # MAGE-TAB parsing.
 use Atlas::Magetab4Atlas;
 
@@ -21,7 +20,6 @@ use File::Spec;
 use File::Basename;
 use File::Copy;
 use File::Path;
-use EBI::FGPT::Config qw( $CONFIG );
 use IPC::Cmd qw( can_run );
 
 use Log::Log4perl;
@@ -38,13 +36,10 @@ log4perl.appender.SCREEN.layout.ConversionPattern = %-5p - %m%n
 # Absolute directory path to the file storage 
 my $abs_path = dirname(File::Spec->rel2abs(__FILE__));
 
-my $atlasSiteConfig = create_atlas_site_config;
-
 # Initialise logger.
 Log::Log4perl::init(\$logger_config);
 my $logger = Log::Log4perl::get_logger;
 
-my $atlasSiteConfig = create_atlas_site_config;
 
 # Experiment directory idf filename and ArrayExpress and miRBase Load directory as args
 my ($atlasExperimentDir, $idfFilename, $loadDir, $miRBaseDirectory) = @ARGV;
@@ -251,7 +246,7 @@ sub makeArraysToAssaysToFiles {
 		}
 
 		# Get technology from Array design file using peach API. 
-		my $adfInfoUrl = $atlasSiteConfig->get_arrayexpress_adf_info_url;
+		my $adfInfoUrl = "http://peach.ebi.ac.uk:8480/api/array.txt?acc=";
 		my $arrayDataTech=`curl -s $adfInfoUrl$arrayDesign`;
 
 		# Raw data filename.
