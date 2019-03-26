@@ -13,6 +13,8 @@ use 5.10.0;
 # XML config parsing.
 use Atlas::AtlasConfig::Reader qw( parseAtlasConfig );
 
+use Atlas::Common qw( create_atlas_site_config );
+
 # MAGE-TAB parsing.
 use Atlas::Magetab4Atlas;
 
@@ -35,6 +37,8 @@ log4perl.appender.SCREEN.layout.ConversionPattern = %-5p - %m%n
 
 # Absolute directory path to the file storage 
 my $abs_path = dirname(File::Spec->rel2abs(__FILE__));
+
+my $atlasSiteConfig = create_atlas_site_config;
 
 # Initialise logger.
 Log::Log4perl::init(\$logger_config);

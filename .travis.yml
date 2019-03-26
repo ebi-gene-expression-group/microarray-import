@@ -8,6 +8,8 @@ perl:
 
 before_install:
     - sudo apt-get update -q
+    - sudo add-apt-repository ppa:duggan/bats --yes
+    - sudo apt-get install -qq bats
     - cpanm Test::Pod # optional dependency
     - cpanm File::Spec
     - cpanm File::Basename;
@@ -15,10 +17,12 @@ before_install:
     - cpanm File::Path;
     - cpanm Getopt::Long
 
-
 install:
   - cpanm -v --installdeps --notest .
 
+script:
+  - bats test/bats
+  
 
 TRAVIS_PERL_VERSION
 
