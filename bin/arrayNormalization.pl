@@ -44,8 +44,6 @@ my $atlasSiteConfig = create_atlas_site_config;
 Log::Log4perl::init(\$logger_config);
 my $logger = Log::Log4perl::get_logger;
 
-my $atlasSiteConfig = create_atlas_site_config;
-
 # Experiment directory idf filename and ArrayExpress and miRBase Load directory as args
 my ($atlasExperimentDir, $idfFilename, $loadDir, $miRBaseDirectory) = @ARGV;
 my $exptAccession = (split '\/', $atlasExperimentDir)[-1];
