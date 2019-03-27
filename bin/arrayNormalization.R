@@ -267,14 +267,6 @@ illuminaArray <- function(files, outFile) {
 
 	print("Finished reading in Illumina files")
 
-
-	print("Background correcting")
-
-	# The 'bgAdjust' method will estimate the background based on the 
-	# control probe information.
-	lumi.B <- lumiB(lumiBatch, method='bgAdjust')
-
-
 	# Many data coming to ArrayExpress and GEO having missing the STDEV or STDERR columns 
 	# (depends on you BeadStudio version), which are required by LumiBatch class. 
 	# When this data is missed these columns, the lumiR function will output the 
@@ -283,6 +275,7 @@ illuminaArray <- function(files, outFile) {
 	# Function lumiT performs variance stabilizing transform (VST) with both input and output being LumiBatch object.
 	# VST - Variance stabilization is critical for subsequent statistical inference to identify differential genes from microarray data
  	if ( any(assayDataElementNames(lumiBatch) == "se.exprs") ) {
+ 		print("Background correcting")
     	# The 'bgAdjust' method will estimate the background based on the control probe information,
      	lumi.B <- lumiB(lumiBatch, method='bgAdjust')
      	lumi.T <- lumiT(lumi.B, method = 'vst')
