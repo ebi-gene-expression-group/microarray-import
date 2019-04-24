@@ -76,6 +76,9 @@ find ${expPath} -maxdepth 1 -name "${e}_A-*-normalized-expressions.tsv.undecorat
     if  [ -e "${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp" ]; then
             echo "Merging probe ids with highest mean per gene"
             highestMeanProbeIdsPerGene.R "${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp"
+    else 
+         echo "ERROR: ${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp doesnt not exist" 
+         exit 1       
     fi
 done    
 

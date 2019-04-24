@@ -6,7 +6,7 @@ suppressPackageStartupMessages(require(data.table))
 args <- commandArgs( TRUE )
 
 if( length( args ) != 1 ) {
-  stop( "\nUsage:\n\tHishestmeanProbeIdsPerGene.R <expNorm_decorated_filename>\n\n" )
+  stop( "\nUsage:\n\tHighestmeanProbeIdsPerGene.R <expNorm_decorated_filename>\n\n" )
 }
 
 # Get the analytics filename from the arguments.
