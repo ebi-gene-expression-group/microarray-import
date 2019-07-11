@@ -35,7 +35,7 @@ normalizeArrayData <- function(inFile, mode, outFile, miRBaseFile) {
 		# average intensities to another file.
 		if(mode == "agil1" | mode == "agil2") {
 	
-			agilentArray( files, mode, assayNames, outFile )
+			agilentArray( files, mode, assayNames, outFile, miRBaseFile )
 
 		}
 		# Illumina data 
