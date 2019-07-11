@@ -65,7 +65,7 @@ normalizeArrayData <- function(inFile, mode, outFile, miRBaseFile) {
 }
 
 
-agilentArray <- function(files, mode, assayNames, outFile) {
+agilentArray <- function(files, mode, assayNames, outFile, miRBaseFile) {
 
 	# load limma
 	library(limma)
