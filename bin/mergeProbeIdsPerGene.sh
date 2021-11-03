@@ -49,18 +49,21 @@ decorate_normalized_file() {
     fi
 }
 
+# get organism from either condensed or config.xml file
+organism=$($projectRoot/bash_util/get_organism.sh $expPath)
 ## get normalized-expressions.tsv file
 find ${expPath} -maxdepth 1 -name "${e}_A-*-normalized-expressions.tsv.undecorated" \
     | xargs -n1 basename \
     | sed "s/${e}_//" \
     | sed "s/-normalized-expressions.tsv.undecorated//" \
     | while read -r arrayDesign ; do
-    arrayDesignFile=$(get_arraydesign_file ${arrayDesign})
+    arrayDesignFile=$(get_arraydesign_file ${arrayDesign} ${organism})
     if [ $? -ne 0 ]; then
         echo "ERROR: Could not find array design: $arrayDesign" >&2
             exit 1
     fi
-    organism=$(get_organism_given_arraydesign_file ${arrayDesignFile} )
+    # previously, however this has issues with organisms that share the array design
+    # organism=$(get_organism_given_arraydesign_file ${arrayDesignFile} )
     if [ ! -z `echo $arrayDesignFile | grep mirbase` ]; then
         # This is a miRNA microarray experiment
         geneNameFile="${expPath}/mature.accession.tsv.aux"
@@ -69,17 +72,17 @@ find ${expPath} -maxdepth 1 -name "${e}_A-*-normalized-expressions.tsv.undecorat
             geneNameFile=$(get_geneNameFile_given_organism $organism)
     fi
 
-    ## generate temp decorated file normalized-expressions.tsv  
-    decorate_if_exists "${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.undecorated" "$arrayDesignFile" "$geneNameFile"       
+    ## generate temp decorated file normalized-expressions.tsv
+    decorate_if_exists "${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.undecorated" "$arrayDesignFile" "$geneNameFile"
 
     # use the temp decorated file to find highest mean of probe ids per gene
     if  [ -e "${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp" ]; then
             echo "Merging probe ids with highest mean per gene"
             highestMeanProbeIdsPerGene.R "${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp"
-    else 
-         echo "ERROR: ${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp doesn't exist" 
-         exit 1       
+    else
+         echo "ERROR: ${expPath}/${e}_${arrayDesign}-normalized-expressions.tsv.decorated.tmp doesn't exist"
+         exit 1
     fi
-done    
+done
 
-rm -rf ${expPath}/*-normalized-expressions.tsv.decorated.tmp 
+rm -rf ${expPath}/*-normalized-expressions.tsv.decorated.tmp
